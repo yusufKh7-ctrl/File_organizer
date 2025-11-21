@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-DOWNLOADS_PATH = Path("C:\\Users\\yusuf\\Downloads")
+DOWNLOADS_PATH = Path.home() / 'Downloads'
 
 EXTENSION_TO_FOLDER = {
     "Images": {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".tiff"},

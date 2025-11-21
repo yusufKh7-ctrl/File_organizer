@@ -21,6 +21,27 @@ class DownloadsOrganizer:
                 folder_path.mkdir(exist_ok=True)
         
         print('Files are being sorted...')
-        print(f'{self.moved_count} files were successfully tranferred!.')
         
-    
+        
+        #Retrieve the files located inside the 'Downloads' folder
+        for file in self.downloads_path.iterdir():
+            if not file.is_file():
+                continue
+            
+            extension = file.suffix.lower()
+        
+            target_folder = 'Others'
+            for folder_name, extensions in self.extension_to_folder.items():
+                if extension in extensions:
+                    target_folder = folder_name
+                    break
+            destination = self.downloads_path / target_folder / file.name
+            
+            try:
+                shutil.move(str(file), str(destination))
+                self.moved_count += 1
+                print(f'{file.name} → {target_folder}')
+            except (PermissionError, shutil.Error):
+                print('the {file.name} was not transferred')
+            
+        print(f'{self.moved_count} files were successfully tranferred!')
