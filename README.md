@@ -73,4 +73,4 @@ pyinstaller --onefile --windowed --icon=assets/robot.ico src/gui.py
 
 
 ```
-### **Made with ❤️ and Python**
+``Made with ❤️ and Python``
