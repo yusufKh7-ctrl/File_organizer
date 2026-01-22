@@ -1,4 +1,4 @@
-# File Organizer 🗂️✨
+# File Organizer 🗂️
 
 A clean, modern desktop application that automatically sorts files in any folder by their type — with a beautiful Tkinter GUI.
 
@@ -28,6 +28,12 @@ A clean, modern desktop application that automatically sorts files in any folder
 
 ## Screenshots
 
+<img width="846" height="1057" alt="Screenshot 2026-01-22 112021" src="https://github.com/user-attachments/assets/4e9e4a67-5b7c-4801-8c71-451874b93c3c" />
+
+## Download Standalone Executable (Windows)
+
+Go to → [Releases](https://github.com/yusufKh7-ctrl/File_organizer/releases)  
+Download the latest `File_Organizer.exe`
 
 ## Quick Start (from source)
 
@@ -66,5 +72,5 @@ pyinstaller --onefile --windowed --icon=assets/robot.ico src/gui.py
 ## The executable will appear in the dist/ folder.
 
 
-
-# **Made with ❤️ and Python**
+```
+``Made with ❤️ and Python``
