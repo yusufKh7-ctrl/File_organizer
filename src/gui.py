@@ -215,7 +215,7 @@ class FileOrganizerGUI:
             organizer = OrganizerFiles()
             organizer.downloads_path = Path(path)
             organizer.folders = selected
-            organizer.run()  # ← الدالة الأصلية اللي بتنقل الملفات فعلياً
+            organizer.run()  
 
             messagebox.showinfo(
                 "Success ✓",
@@ -262,7 +262,7 @@ class FileOrganizerGUI:
         )
         text_area.pack(padx=15, pady=10, fill="both", expand=True)
 
-        # محاكاة التنظيم
+        # Organizational simulation
         lines = []
         lines.append(f"Folder: {path}")
         lines.append("-" * 70)
