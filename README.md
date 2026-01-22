@@ -1,4 +1,4 @@
-# File Organizer 🗂️✨
+# File Organizer 🗂️
 
 A clean, modern desktop application that automatically sorts files in any folder by their type — with a beautiful Tkinter GUI.
 
