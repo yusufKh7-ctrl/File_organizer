@@ -1,15 +1,45 @@
-from pathlib import Path
+"""
+Configuration for file organizer categories and extensions
+"""
 
-
-DOWNLOADS_PATH = Path.home() / 'Downloads'
+FOLDERS = [
+    "Images",
+    "Videos",
+    "Documents",
+    "Audio",
+    "Archives",
+    "Applications",
+    "Others"
+]
 
 EXTENSION_TO_FOLDER = {
-    "Images": {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".tiff"},
-    "Videos": {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v"},
-    "Applications": {".exe", ".msi", ".deb", ".dmg", ".apk", ".app"},
-    "Archives": {".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz"},
-    "Documents": {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".pptx", ".csv", ".rtf"},
-    "Audio": {".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"},
+    # Images
+    "Images": [
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg", ".tiff", ".tif", ".heic", ".ico"
+    ],
+    # Videos
+    "Videos": [
+        ".mp4", ".mkv", ".webm", ".avi", ".mov", ".wmv", ".flv", ".mpeg", ".mpg", ".3gp", ".m4v"
+    ],
+    # Documents
+    "Documents": [
+        ".pdf", ".doc", ".docx", ".txt", ".rtf", ".odt", ".md", ".markdown", ".csv", ".xlsx", ".xls",
+        ".ppt", ".pptx", ".pages", ".epub", ".mobi"
+    ],
+    # Audio
+    "Audio": [
+        ".mp3", ".wav", ".flac", ".m4a", ".ogg", ".aac", ".wma", ".opus", ".aiff", ".alac"
+    ],
+    # Archives / Compressed
+    "Archives": [
+        ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".iso", ".cab"
+    ],
+    # Executables / Installers
+    "Applications": [
+        ".exe", ".msi", ".dmg", ".apk", ".deb", ".rpm", ".appx", ".jar"
+    ],
+    # You can add more categories later if needed
 }
 
-FOLDERS = ['Images', 'Videos', 'Applications', 'Archives', 'Documents', 'Audio', 'Others']
+# Optional: folders that should be ignored / not scanned
+IGNORED_FOLDERS = {"$RECYCLE.BIN", "System Volume Information", ".git", "__pycache__"}
