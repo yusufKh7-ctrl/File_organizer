@@ -40,7 +40,7 @@ class OrganizerFiles:
             return item.name in IGNORED_FOLDERS or item.name.startswith(".")
         return False
 
-    def organize(self, dry_run: bool = False, preview_only: bool = False) -> None:
+    def run(self, dry_run: bool = False, preview_only: bool = False) -> None:
         """
         Main organizing function
         dry_run     → simulate without moving

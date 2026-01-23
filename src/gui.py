@@ -187,8 +187,8 @@ class FileOrganizerGUI:
         ).pack()
 
     def style_button_hover(self, button, color_on_enter, color_on_leave):
-        def on_enter(e): button.config(bg=color_on_enter)
-        def on_leave(e): button.config(bg=color_on_leave)
+        def on_enter(e): button.config(bg=color_on_leave)
+        def on_leave(e): button.config(bg=color_on_enter)
         button.bind("<Enter>", on_enter)
         button.bind("<Leave>", on_leave)
 
@@ -213,9 +213,9 @@ class FileOrganizerGUI:
 
         try:
             organizer = OrganizerFiles()
-            organizer.downloads_path = Path(path)
-            organizer.folders = selected
-            organizer.run()  
+            organizer.set_path(path)
+            organizer.target_folders = selected
+            organizer.run()
 
             messagebox.showinfo(
                 "Success ✓",

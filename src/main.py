@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
 import argparse
+import tkinter as tk
+from gui import FileOrganizerGUI
 
 try:
-    import tkinter as tk
-    from gui import FileOrganizerGUI
     TKINTER_AVAILABLE = True
 except ImportError:
     TKINTER_AVAILABLE = False
@@ -25,7 +25,7 @@ def run_cli(args):
     print(f"Target folder: {org.path}")
     print("Dry run mode:", "ON" if args.dry_run else "OFF")
     
-    org.organize(dry_run=args.dry_run, preview_only=args.preview)
+    org.run(dry_run=args.dry_run, preview_only=args.preview)
     return 0
 
 
