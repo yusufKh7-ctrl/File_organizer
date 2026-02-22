@@ -35,41 +35,6 @@ A clean, modern desktop application that automatically sorts files in any folder
 Go to → [Releases](https://github.com/yusufKh7-ctrl/File_organizer/releases)  
 Download the latest `File_Organizer.exe`
 
-## Quick Start (from source)
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/yusufKh7-ctrl/File_organizer.git
-cd File_organizer
-
-# 2. Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS / Linux
-
-# 3. Install requirements (usually only needed for future extensions)
-pip install -r requirements.txt
-
-# 4. Run the application
-python src/main.py
-# or directly
-python src/gui.py
-
-# Download Standalone Executable (Windows)
-Go to → Releases
-Download the latest File_Organizer.exe
-
-# Building the executable yourself
-### Make sure you're in the virtual environment
-pip install pyinstaller
-
-### Recommended way (using the provided spec file)
-pyinstaller File_Organizer.spec
-
-### Alternative one-liner
-pyinstaller --onefile --windowed --icon=assets/robot.ico src/gui.py
-
-## The executable will appear in the dist/ folder.
 
 
 ```
