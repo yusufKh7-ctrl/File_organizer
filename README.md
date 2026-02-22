@@ -28,7 +28,7 @@ A clean, modern desktop application that automatically sorts files in any folder
 
 ## Screenshots
 
-<img width="846" height="1057" alt="Screenshot 2026-01-22 112021" src="https://github.com/user-attachments/assets/4e9e4a67-5b7c-4801-8c71-451874b93c3c" />
+<img width="400" height="600" alt="Screenshot 2026-01-22 112021" src="https://github.com/user-attachments/assets/4e9e4a67-5b7c-4801-8c71-451874b93c3c" />
 
 ## Download Standalone Executable (Windows)
 
