@@ -2,8 +2,6 @@
 
 A clean, modern desktop application that automatically sorts files in any folder by their type — with a beautiful Tkinter GUI.
 
-[https://github.com/yusufKh7-ctrl/File_organizer](https://github.com/yusufKh7-ctrl/File_organizer)
-
 ## Features
 
 - Modern and intuitive graphical user interface
