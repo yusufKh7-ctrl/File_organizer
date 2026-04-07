@@ -1,315 +1,221 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext, Toplevel
+import customtkinter as ctk
+from tkinter import filedialog, messagebox
 from pathlib import Path
-from config import FOLDERS, EXTENSION_TO_FOLDER
-from organizer import OrganizerFiles
+import os
 
-class FileOrganizerGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("File Organizer")
-        self.root.geometry("680x820")
-        self.root.config(bg="#F5F7FA")
-        self.root.resizable(False, False)
+# --- PRE-DEFINITION TO AVOID UNBOUND ERRORS ---
+# Setting default values to ensure variables are always defined
+FOLDERS = ["Images", "Videos", "Documents", "Others"]
+EXTENSION_TO_FOLDER = {}
+OrganizerFiles = None
 
-        # Colors
-        self.COLOR_BG = "#F5F7FA"
-        self.COLOR_PRIMARY = "#4361EE"
-        self.COLOR_SUCCESS = "#06D6A0"
-        self.COLOR_PREVIEW = "#FFB703"
-        self.COLOR_TEXT = "#2D3436"
-        self.COLOR_LIGHT = "#FFFFFF"
-        self.COLOR_BORDER = "#DEE2E6"
+# --- SECURE IMPORT BLOCK ---
+try:
+    from config import FOLDERS as CFG_FOLDERS, EXTENSION_TO_FOLDER as CFG_EXT
+    from organizer import OrganizerFiles as OrgClass
+    
+    FOLDERS = CFG_FOLDERS
+    EXTENSION_TO_FOLDER = CFG_EXT
+    OrganizerFiles = OrgClass
+except ImportError:
+    # Fallback to defaults if external files are missing
+    EXTENSION_TO_FOLDER = {".jpg": "Images", ".mp4": "Videos", ".pdf": "Documents"}
+    print("Warning: config.py or organizer.py not found. Running with defaults.")
 
-        # Fonts
-        self.font_title = ("Segoe UI", 20, "bold")
-        self.font_section = ("Segoe UI", 11, "bold")
-        self.font_normal = ("Segoe UI", 10)
-        self.font_footer = ("Segoe UI", 9)
+class FileOrganizer(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
-        # Title
-        self.create_header()
+        # --- Window Configuration ---
+        self.title("File Organizer Professional Edition")
+        self.geometry("1000x700")
+        ctk.set_appearance_mode("System")
+        ctk.set_default_color_theme("blue")
 
-        # Main content
-        main_container = tk.Frame(root, bg=self.COLOR_BG)
-        main_container.pack(fill="both", expand=True, padx=35, pady=(10, 20))
+        # Color Palette
+        self.accent_color = "#3B8ED0"
+        self.success_color = "#2ecc71"
 
-        self.create_path_section(main_container)
-        self.create_folders_section(main_container)
-        self.create_buttons(main_container)
+        # Grid Layout
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        # Footer
-        self.create_footer()
+        self.create_sidebar()
+        self.create_main_content()
 
-    def create_header(self):
-        header = tk.Frame(self.root, bg=self.COLOR_BG)
-        header.pack(pady=(30, 20))
+    def create_sidebar(self):
+        """Creates the navigation sidebar and theme settings."""
+        self.sidebar = ctk.CTkFrame(self, width=240, corner_radius=0)
+        self.sidebar.grid(row=0, column=0, sticky="nsew")
+        
+        self.logo_label = ctk.CTkLabel(self.sidebar, text="📁 PRO\nORGANIZER", 
+                                     font=ctk.CTkFont(size=26, weight="bold"))
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(40, 30))
 
-        tk.Label(
-            header,
-            text="Automatic File Organizer",
-            bg=self.COLOR_BG,
-            fg=self.COLOR_PRIMARY,
-            font=self.font_title
-        ).pack()
+        # Status Indicator
+        self.stat_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
+        self.stat_frame.grid(row=1, column=0, padx=20, pady=20)
+        
+        self.status_indicator = ctk.CTkLabel(self.stat_frame, text="● System Ready", 
+                                            text_color=self.success_color, font=ctk.CTkFont(size=12))
+        self.status_indicator.pack()
 
-        tk.Label(
-            header,
-            text="Sort your files into folders by type — instantly",
-            bg=self.COLOR_BG,
-            fg="#636E72",
-            font=("Segoe UI", 10)
-        ).pack(pady=(6, 0))
+        # Appearance Settings
+        self.appearance_label = ctk.CTkLabel(self.sidebar, text="Appearance Mode:", anchor="w")
+        self.appearance_label.grid(row=5, column=0, padx=20, pady=(10, 0), sticky="s")
+        self.appearance_menu = ctk.CTkOptionMenu(self.sidebar, values=["Light", "Dark", "System"],
+                                                 command=lambda m: ctk.set_appearance_mode(m))
+        self.appearance_menu.grid(row=6, column=0, padx=20, pady=(10, 30))
+        self.sidebar.grid_rowconfigure(4, weight=1)
 
-    def create_path_section(self, parent):
-        frame = tk.LabelFrame(
-            parent,
-            text=" Select Folder to Organize",
-            font=self.font_section,
-            bg=self.COLOR_LIGHT,
-            fg=self.COLOR_TEXT,
-            relief="flat",
-            bd=1,
-            highlightbackground=self.COLOR_BORDER,
-            highlightthickness=1,
-            padx=20, pady=20
-        )
-        frame.pack(fill="x", pady=(0, 20))
+    def create_main_content(self):
+        """Creates the main workspace with path selection and categories."""
+        self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.main_frame.grid(row=0, column=1, padx=40, pady=40, sticky="nsew")
 
-        row = tk.Frame(frame, bg=self.COLOR_LIGHT)
-        row.pack(fill="x", pady=5)
+        # 1. Directory Card
+        self.path_card = ctk.CTkFrame(self.main_frame, border_width=1, border_color="#ADB5BD")
+        self.path_card.pack(fill="x", pady=(0, 25), ipady=15)
+        
+        ctk.CTkLabel(self.path_card, text="📍 Source Directory", font=ctk.CTkFont(size=15, weight="bold")).pack(pady=(10, 5), padx=20, anchor="w")
+        
+        self.path_var = ctk.StringVar()
+        container = ctk.CTkFrame(self.path_card, fg_color="transparent")
+        container.pack(fill="x", padx=20)
 
-        self.path_var = tk.StringVar()
-        self.path_entry = tk.Entry(
-            row,
-            textvariable=self.path_var,
-            font=self.font_normal,
-            bg="white",
-            relief="flat",
-            highlightthickness=2,
-            highlightbackground=self.COLOR_BORDER,
-            highlightcolor=self.COLOR_PRIMARY,
-            insertwidth=1
-        )
-        self.path_entry.pack(side="left", fill="x", expand=True, ipady=10)
+        self.entry_path = ctk.CTkEntry(container, textvariable=self.path_var, placeholder_text="Path to clean up...", height=45)
+        self.entry_path.pack(side="left", padx=(0, 10), expand=True, fill="x")
+        
+        self.btn_browse = ctk.CTkButton(container, text="Select Folder", width=120, height=45, 
+                                        font=ctk.CTkFont(weight="bold"), command=self.browse_folder)
+        self.btn_browse.pack(side="right")
 
-        browse_btn = tk.Button(
-            row, text="Browse", command=self.browse_folder,
-            bg=self.COLOR_PRIMARY, fg="white", font=self.font_normal,
-            relief="flat", cursor="hand2", width=12
-        )
-        browse_btn.pack(side="right", padx=(10, 0))
-        self.style_button_hover(browse_btn, self.COLOR_PRIMARY, "#3651D4")
-
-    def create_folders_section(self, parent):
-        frame = tk.LabelFrame(
-            parent,
-            text=" Organize Files Into These Folders",
-            font=self.font_section,
-            bg=self.COLOR_LIGHT,
-            fg=self.COLOR_TEXT,
-            relief="flat",
-            bd=1,
-            highlightbackground=self.COLOR_BORDER,
-            highlightthickness=1,
-            padx=20, pady=15
-        )
-        frame.pack(fill="both", expand=True, pady=(0, 25))
+        # 2. Categories List
+        self.cat_frame = ctk.CTkScrollableFrame(self.main_frame, label_text="Categories to Include", 
+                                                label_font=ctk.CTkFont(size=15, weight="bold"), border_width=1)
+        self.cat_frame.pack(fill="both", expand=True, pady=10)
 
         self.check_vars = {}
-        for i, folder in enumerate(FOLDERS):
-            var = tk.BooleanVar(value=True)
+        for folder in FOLDERS:
+            var = ctk.BooleanVar(value=True)
             self.check_vars[folder] = var
+            cb = ctk.CTkCheckBox(self.cat_frame, text=f"  {folder}", variable=var, 
+                                 checkbox_width=22, checkbox_height=22, font=ctk.CTkFont(size=14))
+            cb.pack(pady=10, padx=25, anchor="w")
 
-            row = tk.Frame(frame, bg=self.COLOR_LIGHT)
-            row.pack(fill="x", pady=4)
+        # 3. Action Buttons
+        self.action_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        self.action_frame.pack(fill="x", pady=(30, 0))
 
-            cb = tk.Checkbutton(
-                row, variable=var, bg=self.COLOR_LIGHT, fg=self.COLOR_TEXT,
-                selectcolor=self.COLOR_PRIMARY, activebackground=self.COLOR_LIGHT,
-                font=self.font_normal, cursor="hand2"
-            )
-            cb.pack(side="left", padx=(5, 0))
+        self.btn_preview = ctk.CTkButton(self.action_frame, text="🔍 Preview Changes", 
+                                         height=55, fg_color="transparent", border_width=2,
+                                         border_color=self.accent_color, text_color=(self.accent_color, "white"),
+                                         hover_color=("#E9ECEF", "#343A40"), command=self.show_preview)
+        self.btn_preview.grid(row=0, column=0, padx=(0, 10), sticky="ew")
 
-            tk.Label(
-                row, text=folder, bg=self.COLOR_LIGHT, fg=self.COLOR_TEXT,
-                font=self.font_normal, anchor="w"
-            ).pack(side="left", padx=(8, 0), fill="x", expand=True)
+        self.btn_run = ctk.CTkButton(self.action_frame, text="🚀 Organize Files", 
+                                     fg_color=self.success_color, hover_color="#27ae60",
+                                     text_color="white", height=55, font=ctk.CTkFont(size=18, weight="bold"),
+                                     command=self.start_organizing)
+        self.btn_run.grid(row=0, column=1, padx=(10, 0), sticky="ew")
+        
+        self.action_frame.grid_columnconfigure((0, 1), weight=1)
 
-            if i < len(FOLDERS) - 1:
-                sep = tk.Frame(frame, height=1, bg=self.COLOR_BORDER)
-                sep.pack(fill="x", padx=10)
-
-    def create_buttons(self, parent):
-        btn_frame = tk.Frame(parent, bg=self.COLOR_BG)
-        btn_frame.pack(pady=20)
-
-        start_btn = tk.Button(
-            btn_frame,
-            text="Start Organizing Now",
-            command=self.start_organizing,
-            bg=self.COLOR_SUCCESS,
-            fg="white",
-            font=("Segoe UI", 13, "bold"),
-            relief="flat",
-            cursor="hand2",
-            height=2,
-            width=25
-        )
-        start_btn.grid(row=0, column=0, padx=10)
-        self.style_button_hover(start_btn, self.COLOR_SUCCESS, "#05BF8A")
-
-        preview_btn = tk.Button(
-            btn_frame,
-            text="Preview Changes Only",
-            command=self.show_preview_window,
-            bg=self.COLOR_PREVIEW,
-            fg="black",
-            font=("Segoe UI", 13, "bold"),
-            relief="flat",
-            cursor="hand2",
-            height=2,
-            width=25
-        )
-        preview_btn.grid(row=0, column=1, padx=10)
-        self.style_button_hover(preview_btn, self.COLOR_PREVIEW, "#FFC107")
-
-    def create_footer(self):
-        footer_frame = tk.Frame(self.root, bg=self.COLOR_BG)
-        footer_frame.pack(side="bottom", fill="x", pady=(15, 20))
-
-        tk.Label(
-            footer_frame,
-            text="Made with Python • Organized Life, Organized Mind",
-            font=self.font_footer,
-            bg=self.COLOR_BG,
-            fg="#95A5A6"
-        ).pack()
-
-    def style_button_hover(self, button, color_on_enter, color_on_leave):
-        def on_enter(e): button.config(bg=color_on_leave)
-        def on_leave(e): button.config(bg=color_on_enter)
-        button.bind("<Enter>", on_enter)
-        button.bind("<Leave>", on_leave)
+    # --- Core Logic Functions ---
 
     def browse_folder(self):
-        folder_path = filedialog.askdirectory()
-        if folder_path:
-            self.path_var.set(folder_path)
-
-    def get_selected_folders(self):
-        return [f for f, v in self.check_vars.items() if v.get()]
+        path = filedialog.askdirectory()
+        if path: self.path_var.set(path)
 
     def start_organizing(self):
+        """Triggers the actual file movement and shows a report."""
         path = self.path_var.get().strip()
-        if not path:
-            messagebox.showerror("Error", "Please select a folder first.")
+        
+        # Check if the core organizer class was imported successfully
+        if OrganizerFiles is None:
+            messagebox.showerror("Error", "Organizer core module missing!")
             return
 
-        selected = self.get_selected_folders()
-        if not selected:
-            messagebox.showerror("Error", "Please select at least one folder.")
+        if not path or not Path(path).exists():
+            messagebox.showerror("Error", "Please select a valid folder first.")
             return
 
+        selected = [f for f, v in self.check_vars.items() if v.get()]
+        
         try:
-            organizer = OrganizerFiles()
-            organizer.set_path(path)
-            organizer.target_folders = selected
-            organizer.run()
-
-            messagebox.showinfo(
-                "Success ✓",
-                f"{organizer.moved_count} files organized successfully!\n"
-                "Your folder is now clean and tidy."
-            )
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-
-    def show_preview_window(self):
-        path = self.path_var.get().strip()
-        if not path:
-            messagebox.showerror("Error", "Please select a folder first.")
-            return
-
-        selected = self.get_selected_folders()
-        if not selected:
-            messagebox.showerror("Error", "Please select at least one folder.")
-            return
-
-        preview_window = Toplevel(self.root)
-        preview_window.title("Preview - No files will be moved")
-        preview_window.geometry("700x500")
-        preview_window.configure(bg="#F5F7FA")
-        preview_window.transient(self.root)
-        preview_window.grab_set()
-
-        tk.Label(
-            preview_window,
-            text="Preview of changes (dry-run)",
-            font=("Segoe UI", 14, "bold"),
-            bg="#F5F7FA",
-            fg="#4361EE"
-        ).pack(pady=10)
-
-        text_area = scrolledtext.ScrolledText(
-            preview_window,
-            wrap=tk.WORD,
-            width=80,
-            height=22,
-            font=("Consolas", 10),
-            bg="#FFFFFF",
-            fg="#2D3436"
-        )
-        text_area.pack(padx=15, pady=10, fill="both", expand=True)
-
-        # Organizational simulation
-        lines = []
-        lines.append(f"Folder: {path}")
-        lines.append("-" * 70)
-
-        moved = 0
-        try:
+            org = OrganizerFiles()
+            org.set_path(path)
+            org.target_folders = selected
+            
+            # Tracking moved files for the final report
+            moved_files = []
             for file in Path(path).iterdir():
-                if not file.is_file():
-                    continue
-
-                ext = file.suffix.lower()
-                target = "Others"
-                for folder_name, exts in EXTENSION_TO_FOLDER.items():
-                    if ext in exts and folder_name in selected:
-                        target = folder_name
-                        break
-
-                dest = Path(path) / target / file.name
-                note = ""
-                if dest.exists():
-                    note = " (will be renamed to avoid conflict)"
-
-                lines.append(f"{file.name:<45}  →  {target}/{file.name}{note}")
-                moved += 1
-
-            lines.append("-" * 70)
-            lines.append(f"Total files that would be moved: {moved}")
-            lines.append("Nothing has been changed — this is just a preview.")
+                if file.is_file():
+                    ext = file.suffix.lower()
+                    for folder, exts in EXTENSION_TO_FOLDER.items():
+                        if ext in exts and folder in selected:
+                            moved_files.append(f"• {file.name} ➔ {folder}")
+                            break
+            
+            org.run() # Execute organization
+            self.show_completion_report(len(moved_files), moved_files, path)
 
         except Exception as e:
-            lines.append(f"Error during preview: {str(e)}")
+            messagebox.showerror("Process Error", str(e))
 
-        text_area.insert(tk.END, "\n".join(lines))
-        text_area.config(state="disabled")
+    def show_preview(self):
+        """Simulates file movement without making changes."""
+        path = self.path_var.get().strip()
+        if not path or not Path(path).exists():
+            messagebox.showerror("Selection Required", "Select a folder to see the preview.")
+            return
 
-        tk.Button(
-            preview_window,
-            text="Close",
-            command=preview_window.destroy,
-            bg="#4361EE",
-            fg="white",
-            font=("Segoe UI", 11),
-            width=12
-        ).pack(pady=10)
+        preview_win = ctk.CTkToplevel(self)
+        preview_win.title("Preview - Dry Run")
+        preview_win.geometry("750x550")
+        preview_win.after(100, lambda: preview_win.focus())
 
+        txt = ctk.CTkTextbox(preview_win, width=700, height=450, font=("Consolas", 12))
+        txt.pack(padx=20, pady=20, fill="both", expand=True)
+
+        log = [f"SCANNING: {path}\n", "="*50]
+        selected = [f for f, v in self.check_vars.items() if v.get()]
+        
+        for file in Path(path).iterdir():
+            if file.is_file():
+                found = False
+                for folder, exts in EXTENSION_TO_FOLDER.items():
+                    if file.suffix.lower() in exts and folder in selected:
+                        log.append(f"[WILL MOVE] {file.name} -> {folder}")
+                        found = True
+                        break
+                if not found: log.append(f"[STAYING]  {file.name}")
+
+        txt.insert("0.0", "\n".join(log))
+        txt.configure(state="disabled")
+
+    def show_completion_report(self, count, log, target_path):
+        """Opens a summary window after a successful operation."""
+        report = ctk.CTkToplevel(self)
+        report.title("Organization Complete")
+        report.geometry("650x500")
+        report.after(100, lambda: report.focus())
+
+        ctk.CTkLabel(report, text="✅ Mission Accomplished!", font=ctk.CTkFont(size=20, weight="bold"), text_color=self.success_color).pack(pady=20)
+        ctk.CTkLabel(report, text=f"Total Files Organized: {count}").pack()
+
+        log_box = ctk.CTkTextbox(report, width=600, height=250)
+        log_box.pack(padx=20, pady=15, fill="both", expand=True)
+        log_box.insert("0.0", "\n".join(log) if log else "Everything was already in order!")
+        log_box.configure(state="disabled")
+
+        btn_frame = ctk.CTkFrame(report, fg_color="transparent")
+        btn_frame.pack(pady=20)
+
+        # Button to open the organized folder in File Explorer
+        ctk.CTkButton(btn_frame, text="Open Folder", fg_color="#34495e", command=lambda: os.startfile(target_path)).pack(side="left", padx=10)
+        ctk.CTkButton(btn_frame, text="Close", command=report.destroy).pack(side="right", padx=10)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = FileOrganizerGUI(root)
-    root.mainloop()
+    app = FileOrganizer()
+    app.mainloop()
