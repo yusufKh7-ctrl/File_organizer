@@ -26,7 +26,12 @@ A clean, modern desktop application that automatically sorts files in any folder
 
 ## Screenshots
 
-<img width="400" height="600" alt="Screenshot 2026-01-22 112021" src="https://github.com/user-attachments/assets/4e9e4a67-5b7c-4801-8c71-451874b93c3c" />
+| v1.0.0 (Old Interface) | v1.1.0 (New Interface) |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/4e9e4a67-5b7c-4801-8c71-451874b93c3c" width="400" alt="Old Vertical Interface" /> | <img src="https://github.com/user-attachments/assets/c9ea209c-9f65-462b-828c-eb205946cebd" width="600" alt="New Wide Pro Interface" /> |
+
+
+
 
 ## Download Standalone Executable (Windows)
 
