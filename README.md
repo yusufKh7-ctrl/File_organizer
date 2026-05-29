@@ -38,8 +38,3 @@ A clean, modern desktop application that automatically sorts files in any folder
 Go to → [Releases](https://github.com/yusufKh7-ctrl/File_organizer/releases)  
 Download the latest `File_Organizer.exe`
 
-
-
-```
-Made by -Yusuf-
-```
