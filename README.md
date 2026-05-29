@@ -40,5 +40,5 @@ Download the latest `File_Organizer.exe`
 
 
 
-```
-``Made with ❤️ and Python``
+'''
+'''Made by -Yusuf-'''
